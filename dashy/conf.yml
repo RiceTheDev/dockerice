@@ -1,0 +1,50 @@
+appConfig:
+  title: Dockerice Dashboard
+  theme: colorful
+  iconSize: medium
+  layout: auto
+
+sections:
+  - name: Dev Tools
+    items:
+      - title: VS Code
+        url: http://localhost:8082
+        icon: vscode-icons:file-type-vscode
+
+  - name: Downloads
+    items:
+      - title: qBittorrent
+        url: http://localhost:8080
+        icon: mdi:download
+
+      - title: File Browser
+        url: http://localhost:8081
+        icon: mdi:file
+
+  - name: Home Control
+    items:
+      - title: Home Assistant
+        url: http://localhost:8123
+        icon: mdi:home-assistant
+
+      - title: Vaultwarden
+        url: http://localhost:8086
+        icon: mdi:lock
+
+  - name: Internet Tools
+    items:
+      - title: Whoogle
+        url: http://localhost:8083
+        icon: mdi:google
+
+      - title: PrivateBin
+        url: http://localhost:8084
+        icon: mdi:clipboard-text
+
+      - title: Guacamole
+        url: http://localhost:8085
+        icon: mdi:monitor
+
+      - title: RustDesk
+        url: http://localhost:21115
+        icon: mdi:remote-desktop

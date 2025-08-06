@@ -1,0 +1,12 @@
+.env
+
+downloads/
+config/
+data/
+etc-pihole/
+filebrowser/*
+jellyfin/*
+vaultwarden/*
+qbittorrent/*
+homeassistant/*
+code-server/*

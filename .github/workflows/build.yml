@@ -1,0 +1,25 @@
+name: Build All Containers
+
+on:
+  push:
+    paths:
+      - "**/Dockerfile"
+      - "**/*.sh"
+      - ".github/workflows/build.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔨 Build containers
+        run: |
+          for dir in */ ; do
+            if [ -f "$dir/Dockerfile" ]; then
+              echo "Building $dir"
+              docker build -t \${{ github.actor }}/${dir%/}:latest $dir
+            fi
+          done

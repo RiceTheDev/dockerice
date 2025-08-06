@@ -1,0 +1,172 @@
+version: "3.9"
+
+services:
+  dashy:
+    image: lissy93/dashy
+    container_name: homepage
+    ports:
+      - "3000:8080"
+    volumes:
+      - ./dashy/conf.yml:/app/public/conf.yml:ro
+    restart: unless-stopped
+
+  qbittorrent:
+    image: linuxserver/qbittorrent
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      - WEBUI_PORT=8080
+    volumes:
+      - ./qbittorrent/config:/config
+      - ./downloads:/downloads
+    ports:
+      - "8080:8080"
+      - "6881:6881"
+      - "6881:6881/udp"
+    restart: unless-stopped
+
+  filebrowser:
+    image: filebrowser/filebrowser
+    container_name: filebrowser
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - ./filebrowser:/database
+      - ./filebrowser/files:/srv 
+    user: "1000:1000"
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+
+  home-assistant:
+    image: homeassistant/home-assistant
+    container_name: home-assistant
+    volumes:
+      - ./homeassistant/config:/config
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "8123:8123"
+    restart: unless-stopped
+
+  code-server:
+    image: codercom/code-server:latest
+    container_name: code-server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    env_file:
+      - .env
+    volumes:
+      - ./code-server/config:/home/coder/.config
+      - ./code-server/projects:/home/coder/projects
+    ports:
+      - "8082:8080"
+    restart: unless-stopped
+
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    environment:
+      - WEBSOCKET_ENABLED=true
+    volumes:
+      - ./vaultwarden/data:/data
+    ports:
+      - "8086:80"
+    restart: unless-stopped
+    env_file:
+      - .env
+  privatebin:
+    image: privatebin/nginx-fpm-alpine
+    container_name: privatebin
+    ports:
+      - "8084:8080"
+    restart: unless-stopped
+
+  searxng:
+    image: searxng/searxng
+    container_name: searxng
+    ports:
+      - "8083:8080"
+    restart: unless-stopped
+
+  guacamole:
+    image: oznu/guacamole
+    container_name: guacamole
+    ports:
+      - "8085:8080"
+    restart: unless-stopped
+
+  rustdesk-hbbs:
+    image: rustdesk/rustdesk-server:latest
+    container_name: rustdesk-hbbs
+    command: hbbs -r rustdesk-hbbr:21117
+    depends_on:
+      - rustdesk-hbbr
+    ports:
+      - "21115:21115"
+      - "21116:21116"
+      - "21118:21118"
+    restart: unless-stopped
+
+  rustdesk-hbbr:
+    image: rustdesk/rustdesk-server:latest
+    container_name: rustdesk-hbbr
+    command: hbbr
+    ports:
+      - "21117:21117"
+    restart: unless-stopped
+
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      # DNS Ports
+      - "53:53/tcp"
+      - "53:53/udp"
+      # Default HTTP Port
+      - "8087:80/tcp"
+      # Default HTTPs Port. FTL will generate a self-signed certificate
+      - "443:443/tcp"
+      # Uncomment the line below if you are using Pi-hole as your DHCP server
+      #- "67:67/udp"
+      # Uncomment the line below if you are using Pi-hole as your NTP server
+      #- "123:123/udp"
+    environment:
+      # Set the appropriate timezone for your location (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), e.g:
+      TZ: 'America/Sao_Paulo'
+      # If using Docker's default `bridge` network setting the dns listening mode should be set to 'all'
+      FTLCONF_dns_listeningMode: 'all'
+    # Volumes store your data between container upgrades
+    env_file:
+      - .env
+    volumes:
+      # For persisting Pi-hole's databases and common configuration file
+      - './etc-pihole:/etc/pihole'
+      # Uncomment the below if you have custom dnsmasq config files that you want to persist. Not needed for most starting fresh with Pi-hole v6. If you're upgrading from v5 you and have used this directory before, you should keep it enabled for the first v6 container start to allow for a complete migration. It can be removed afterwards. Needs environment variable FTLCONF_misc_etc_dnsmasq_d: 'true'
+      #- './etc-dnsmasq.d:/etc/dnsmasq.d'
+    cap_add:
+      # See https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+      # Required if you are using Pi-hole as your DHCP server, else not needed
+      - NET_ADMIN
+      # Required if you are using Pi-hole as your NTP client to be able to set the host's system time
+      - SYS_TIME
+      # Optional, if Pi-hole should get some more processing time
+      - SYS_NICE
+    restart: unless-stopped
+
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    user: "1000:1000"
+    ports:
+      - 8096:8096
+    volumes:
+      - ./jellyfin/config:/config
+      - ./jellyfin/cache:/cache
+      - ./filebrowser/files:/media
+    restart: unless-stopped
